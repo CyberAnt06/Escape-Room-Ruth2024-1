@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo da Memória</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .pixel-font {
+      font-family: 'Press Start 2P', cursive;
+    }
+    .hidden {
+      display: none;
+    }
+    .center {
+      text-align: center;
+    }
+    .options {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .options button {
+      background-color: #444;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .options button:hover {
+      background-color: #666;
+    }
+    #image-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    #image-display {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    img {
+      display: block;
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="start-screen" class="center">
+    <h1 class="pixel-font">Prontos?</h1>
+    <h2 id="countdown" class="pixel-font"></h2>
+  </div>
+  <div id="image-container" class="hidden">
+    <img id="image-display" src="" alt="Imagem">
+  </div>
+  <div id="question-screen" class="hidden center">
+    <h1 id="question"></h1>
+    <div class="options" id="options"></div>
+  </div>
+  <div id="reward-screen" class="hidden">
+    <img id="reward-image" src="reward.jpg" alt="Recompensa">
+  </div>
+  <div id="transition-message" class="hidden center">
+    <h1>Parabéns! Prepare-se para o Nível 2</h1>
+  </div>
+
+  <script>
+    const imagesLevel1 = [
+      "Imagens/Tartaruga.webp", "Imagens/Cueio.png", "Imagens/Efalante.jpeg", "Imagens/Falcão.jpg", "Imagens/girafa.webp",
+      "Imagens/Urso.webp", "Imagens/Leão.webp", "Imagens/Mamaco.jpg", "Imagens/Lobo.jpg", "Imagens/Jacaré.webp"
+    ];
+    const imagesLevel2 = [
+      "Imagens/Verde.jpg", "Imagens/Napoleão.webp", "Imagens/Interrogação.jpg", "Imagens/Pé.webp", "Imagens/mamede.jpg",
+      "Imagens/Arca.jpg", "Imagens/mitocondria.webp", "Imagens/Luiz.jpg", "Imagens/tesoura.jpg", "Imagens/Caneca.webp",
+      "Imagens/Mochila.webp", "Imagens/Grampeador.jpg", "Imagens/Castelo.webp", "Imagens/Paris.jpg", "Imagens/Astronauta.jpg"
+    ];
+    let currentLevel = 1;
+    let correctAnswer = "";
+    const countdownEl = document.getElementById("countdown");
+    const startScreen = document.getElementById("start-screen");
+    const imageContainer = document.getElementById("image-container");
+    const imageDisplay = document.getElementById("image-display");
+    const questionScreen = document.getElementById("question-screen");
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const rewardScreen = document.getElementById("reward-screen");
+    const rewardImage = document.getElementById("reward-image");
+    const transitionMessage = document.getElementById("transition-message");
+
+    const levels = [
+      {
+        images: imagesLevel1,
+        question: "Qual foi a 7ª imagem a aparecer?",
+        answer: "Leão",
+        options: ["Lobo", "Falcão", "Leão", "Jacaré", "Elefante", "Urso Polar"]
+      },
+      {
+        images: imagesLevel2,
+        question: "Qual foi a 11ª imagem a aparecer?",
+        answer: "Mochila",
+        options: ["Grampeador", "Caneca", "Tesoura", "Astronauta", "Mochila", "Verde"]
+      }
+    ];
+
+    function startCountdown(callback) {
+      let timeLeft = 10;
+      countdownEl.textContent = timeLeft;
+      const interval = setInterval(() => {
+        timeLeft--;
+        countdownEl.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          startScreen.classList.add("hidden");
+          callback();
+        }
+      }, 1000);
+    }
+
+    function displayImages(images, callback) {
+      let index = 0;
+      const displayTime = currentLevel === 2 ? 1000 : 2000; // 1 segundo para nível 2, 2 segundos para nível 1
+      imageContainer.classList.remove("hidden");
+      function showNextImage() {
+        if (index < images.length) {
+          imageDisplay.src = images[index];
+          index++;
+          setTimeout(showNextImage, displayTime);
+        } else {
+          imageContainer.classList.add("hidden");
+          callback();
+        }
+      }
+      showNextImage();
+    }
+
+    function showQuestion(level) {
+      const currentLevelData = levels[level - 1];
+      questionEl.textContent = currentLevelData.question;
+      correctAnswer = currentLevelData.answer;
+      optionsEl.innerHTML = currentLevelData.options
+        .map(option => `<button class="option" data-value="${option}">${option}</button>`)
+        .join("");
+      questionScreen.classList.remove("hidden");
+    }
+
+    function checkAnswer(selectedOption) {
+      if (selectedOption === correctAnswer) {
+        if (currentLevel === 2) {
+          alert("Parabéns! Essa é sua recompensa.");
+          showReward();
+        } else {
+          showTransitionMessage();
+        }
+      } else {
+        alert("Você errou! O nível será reiniciado.");
+        startGame();
+      }
+    }
+
+    function showTransitionMessage() {
+      questionScreen.classList.add("hidden");
+      transitionMessage.classList.remove("hidden");
+      setTimeout(() => {
+        transitionMessage.classList.add("hidden");
+        currentLevel++;
+        startGame();
+      }, 3000);
+    }
+
+    function showReward() {
+      questionScreen.classList.add("hidden");
+      rewardScreen.classList.remove("hidden");
+    }
+
+    function startGame() {
+      questionScreen.classList.add("hidden");
+      rewardScreen.classList.add("hidden");
+      transitionMessage.classList.add("hidden");
+      startScreen.classList.remove("hidden");
+      startCountdown(() => {
+        displayImages(levels[currentLevel - 1].images, () => {
+          showQuestion(currentLevel);
+        });
+      });
+    }
+
+    optionsEl.addEventListener("click", (e) => {
+      if (e.target.classList.contains("option")) {
+        const selectedOption = e.target.getAttribute("data-value");
+        checkAnswer(selectedOption);
+      }
+    });
+
+    startGame();
+  </script>
+</body>
+</html>

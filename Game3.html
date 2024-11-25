@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Resposta</title>
+    <style>
+        body {
+            font-family: 'Verdana', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #000;
+            color: white;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #timer {
+            font-size: 48px;
+            margin-bottom: 20px;
+            transition: color 1s;
+        }
+
+        #responseField {
+            padding: 10px;
+            font-size: 20px;
+            margin-bottom: 20px;
+            width: 300px;
+            text-align: center;
+            border: 2px solid #fff;
+            background-color: #000;
+            color: white;
+        }
+
+        #responseField:focus {
+            outline: none;
+        }
+
+        #submitButton {
+            padding: 10px 20px;
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #333;
+            color: white;
+            border: none;
+        }
+
+        #submitButton:hover {
+            background-color: #444;
+        }
+
+        /* Estilos para as imagens de resultado */
+        .resultImage {
+            display: none;
+            max-width: 80%;
+            max-height: 80%;
+            margin-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="timer">05:00</div>
+    <input type="text" id="responseField" placeholder="Digite sua resposta aqui" />
+    <button id="submitButton">Enviar</button>
+
+    <!-- Imagens de resultado -->
+    <img id="correctImage" class="resultImage" src="Imagens/coroa.png" alt="Você acertou!" />
+    <img id="wrongImage" class="resultImage" src="Imagens/caveira.png" alt="Você perdeu!" />
+
+    <!-- Áudio que tocará em loop -->
+    <audio id="backgroundAudio" loop>
+        <source src="Sirene.mp3" type="audio/mp3">
+        Seu navegador não suporta o elemento de áudio.
+    </audio>
+
+    <script>
+        let timeLeft = 300; // 5 minutos em segundos
+        let interval;
+        const timerElement = document.getElementById('timer');
+        const responseField = document.getElementById('responseField');
+        const submitButton = document.getElementById('submitButton');
+        const correctImage = document.getElementById('correctImage');
+        const wrongImage = document.getElementById('wrongImage');
+        const backgroundAudio = document.getElementById('backgroundAudio');
+
+        // Função para atualizar o cronômetro
+        function updateTimer() {
+            let minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            if (seconds < 10) {
+                seconds = '0' + seconds;
+            }
+
+            timerElement.textContent = `${minutes}:${seconds}`;
+
+            // Altera a cor do cronômetro de preto para vermelho
+            timerElement.style.color = (timeLeft % 2 === 0) ? 'black' : 'red';
+            
+            // Verifica se o tempo acabou
+            if (timeLeft === 0) {
+                clearInterval(interval);
+                alert("Você perdeu! O tempo acabou.");
+                backgroundAudio.pause(); // Para o áudio quando o jogo acaba
+                wrongImage.style.display = 'block'; // Exibe a imagem de erro
+            } else {
+                timeLeft--;
+            }
+        }
+
+        // Função para verificar a resposta e mostrar a imagem de resultado
+        function checkAnswer() {
+            const answer = responseField.value.trim().toLowerCase();
+            if (answer === "resposta correta") {
+                alert("Você acertou!");
+                clearInterval(interval); // Pausa o cronômetro
+                backgroundAudio.pause(); // Para o áudio
+                correctImage.style.display = 'block'; // Exibe a imagem de acerto
+            } else {
+                clearInterval(interval); // Pausa o cronômetro
+                alert("Você perdeu! Resposta errada.");
+                backgroundAudio.pause(); // Para o áudio
+                wrongImage.style.display = 'block'; // Exibe a imagem de erro
+            }
+        }
+
+        // Inicia o cronômetro
+        interval = setInterval(updateTimer, 1000);
+
+        // Inicia o áudio
+        backgroundAudio.play();
+
+        // Ação do botão "Enviar"
+        submitButton.addEventListener('click', checkAnswer);
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo Final Melhorado</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: url('Imagens/CenaFinale1.png') no-repeat center center/cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+        #cronometro {
+            position: absolute;
+            top: 10px;
+            font-size: 32px;
+            font-family: 'Press Start 2P', cursive;
+            color: white;
+            text-shadow: 2px 2px 4px black;
+        }
+        .ficha-container {
+            position: absolute;
+            bottom: -200px;
+            display: flex;
+            justify-content: space-evenly;
+            width: 80%;
+            animation: slideUp 2s forwards;
+        }
+        @keyframes slideUp {
+            to {
+                bottom: 10%;
+            }
+        }
+        .ficha {
+            background: gray;
+            border: 2px solid #333;
+            border-radius: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            width: 200px;
+            height: 300px;
+            position: relative;
+            cursor: pointer;
+            transition: 0.3s;
+            overflow: hidden;
+        }
+        .ficha:hover {
+            border-color: red;
+        }
+        .ficha .imagem {
+            width: 100%;
+            height: 50%;
+            background: url('Imagens/Cara1.jpeg') no-repeat center center/cover;
+            border-bottom: 2px solid #555;
+        }
+        .ficha:nth-child(2) .imagem {
+            background: url('Imagens/Cara3.jpeg') no-repeat center center/cover;
+        }
+        .ficha:nth-child(3) .imagem {
+            background: url('Imagens/Cara2.jpeg') no-repeat center center/cover;
+        }
+        .ficha .linha {
+            position: absolute;
+            top: 60%;
+            width: 100%;
+            height: 2px;
+            background: white;
+        }
+        .ficha .caveira {
+            position: absolute;
+            top: 55%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: white;
+        }
+        .ficha .texto {
+            position: absolute;
+            bottom: 10%;
+            width: 90%;
+            left: 5%;
+            text-align: center;
+            font-size: 14px;
+            color: white;
+        }
+        .resultado {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 64px;
+            text-align: center;
+            font-family: 'Great Vibes', cursive;
+        }
+        .resultado.ganhou {
+            color: white;
+            text-shadow: 0 0 15px gold, 0 0 30px orange;
+        }
+        .resultado.perdeu {
+            color: red;
+            text-shadow: 0 0 15px black, 0 0 30px darkred;
+        }
+        .resultado.visivel {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="cronometro">05:00</div>
+    <div class="ficha-container">
+        <div class="ficha" data-resultado="perdeu">
+            <div class="imagem"></div>
+            <div class="linha"></div>
+            <div class="caveira">☠️</div>
+            <div class="texto">Rafael Cruz Santiago</div>
+        </div>
+        <div class="ficha" data-resultado="ganhou">
+            <div class="imagem"></div>
+            <div class="linha"></div>
+            <div class="caveira">☠️</div>
+            <div class="texto">Magno "Víbora" Ferreira </div>
+        </div>
+        <div class="ficha" data-resultado="perdeu">
+            <div class="imagem"></div>
+            <div class="linha"></div>
+            <div class="caveira">☠️</div>
+            <div class="texto">Carlos Ferro Almeida</div>
+        </div>
+    </div>
+    <div class="resultado" id="resultado"></div>
+
+    <script>
+        let tempo = 300; // 5 minutos
+        const cronometroEl = document.getElementById('cronometro');
+        const resultadoEl = document.getElementById('resultado');
+        const fichas = document.querySelectorAll('.ficha');
+        const alertaAudio = new Audio('Sirene.mp3');
+        const transicaoAudio = new Audio('transicao.mp3');
+        let intervalo;
+
+        function atualizarCronometro() {
+            const minutos = Math.floor(tempo / 60);
+            const segundos = tempo % 60;
+            cronometroEl.textContent = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+
+            if (tempo <= 60) {
+                cronometroEl.style.color = 'red';
+                cronometroEl.style.animation = 'blink 1s infinite';
+                if (!alertaAudio.playing) alertaAudio.play();
+            }
+
+            if (tempo <= 0) {
+                clearInterval(intervalo);
+                alertaAudio.pause();
+            }
+
+            tempo--;
+        }
+
+        intervalo = setInterval(atualizarCronometro, 1000);
+
+        fichas.forEach(ficha => {
+            ficha.addEventListener('click', () => {
+                clearInterval(intervalo);
+                alertaAudio.pause();
+                cronometroEl.style.display = 'none';
+                document.querySelector('.ficha-container').style.display = 'none';
+
+                // Transição de fundo
+                document.body.style.background = "Imagens/CenaFinale2.png') no-repeat center center/cover";
+                transicaoAudio.play();
+
+                setTimeout(() => {
+                    document.body.style.background = 'url("Imagens/CenaFinale2.png") no-repeat center center/cover';  // Imagem de transição
+
+                    // Transição do áudio: vai durar 10 segundos
+                    setTimeout(() => {
+                        document.body.style.background = "url('Imagens/CenaFinale$.png') no-repeat center center/cover";
+                        transicaoAudio.pause(); // Pausar o áudio após 10 segundos
+                        const resultado = ficha.dataset.resultado;
+                        resultadoEl.textContent = resultado === 'ganhou' ? 'Você Ganhou.' : 'Você Perdeu.';
+                        resultadoEl.classList.add('visivel', resultado === 'ganhou' ? 'ganhou' : 'perdeu');
+                    }, 2000); // 10 segundos de transição de áudio
+                }, 2000); // A transição visual acontece por 1 segundo
+            });
+        });
+
+        // Animação de piscar
+        document.head.insertAdjacentHTML('beforeend', `
+            <style>
+                @keyframes blink {
+                    50% { opacity: 0; }
+                }
+            </style>
+        `);
+    </script>
+</body>
+</html>

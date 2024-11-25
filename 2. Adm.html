@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title> <!-- Título vazio -->
+    <style>
+        /* Ocultando qualquer conteúdo visível na tela */
+        body {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        // Encapsulando o código para não interferir em outros scripts
+        (function() {
+            let ultimoArquivo = '';
+
+            function checkStatus() {
+                // Fazendo uma requisição para verificar o conteúdo de controle.txt
+                fetch('controle.txt')  // Ajuste o caminho para onde o controle.txt está salvo
+                    .then(response => response.text())
+                    .then(arquivo => {
+                        arquivo = arquivo.trim();
+                        
+                        // Se o arquivo mudou, redireciona para o novo conteúdo
+                        if (arquivo !== ultimoArquivo) {
+                            ultimoArquivo = arquivo;  // Atualiza o arquivo mais recente
+                            
+                            // Redireciona para o novo arquivo (pode ser um jogo, vídeo, etc.)
+                            window.location.href = arquivo;
+                        }
+                    })
+                    .catch(error => console.error('Erro ao verificar o status:', error));
+            }
+
+            // Verifica o arquivo controle.txt a cada 5 segundos
+            setInterval(checkStatus, 5000);
+        })();
+    </script>
+</body>
+</html>

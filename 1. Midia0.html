@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Start</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: black;
+        }
+        #overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: black;
+        }
+        #overlayText {
+            color: white;
+            font-size: 40px;
+            font-family: 'Press Start 2P', cursive; /* Fonte pixelada */
+        }
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            display: none;
+        }
+    </style>
+    <!-- Fonte pixelada -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="overlay">
+        <div id="overlayText">Press Enter</div>
+    </div>
+
+    <video id="myVideo" controls>
+        <source src="Videos/Game1.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <script>
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                // Esconde o overlay e mostra o vídeo
+                document.getElementById('overlay').style.display = 'none';
+                var video = document.getElementById('myVideo');
+                video.style.display = 'block';
+                video.play();
+
+                // Coloca o vídeo em tela cheia
+                if (video.requestFullscreen) {
+                    video.requestFullscreen();
+                } else if (video.mozRequestFullScreen) { // Firefox
+                    video.mozRequestFullScreen();
+                } else if (video.webkitRequestFullscreen) { // Chrome, Safari and Opera
+                    video.webkitRequestFullscreen();
+                } else if (video.msRequestFullscreen) { // IE/Edge
+                    video.msRequestFullscreen();
+                }
+
+                // Quando o vídeo terminar, inicia o Game1
+                video.onended = function() {
+                    window.location.href = 'Game1.html';  // Mude para o link do seu Game1
+                };
+            }
+        });
+    </script>
+
+</html>
